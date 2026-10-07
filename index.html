@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script>
+    /* Watchdog: a tiny classic script that runs before the main module. If the module never starts
+       (an old browser, or an in-app preview that can't run it), say so on screen instead of sitting at 000. */
+    (function () {
+      var errs = [];
+      addEventListener('error', function (e) { errs.push((e.message || 'script error') + (e.lineno ? ' (line ' + e.lineno + ')' : '')); });
+      addEventListener('unhandledrejection', function (e) { var r = e.reason; errs.push(String(r && r.message || r)); });
+      setTimeout(function () {
+        if (window.__mezaBooted) return;
+        var m = document.getElementById('ldMsg'); if (!m || /ld-err/.test(m.className)) return;
+        var why = errs.length ? ' Reason: ' + errs[0] + '.' : !('noModule' in HTMLScriptElement.prototype) ? ' This browser does not run modern scripts.' : '';
+        m.textContent = 'This preview could not start the 3D scene.' + why + ' Open Meza.html in Safari or Chrome.';
+        m.className = 'mono ld-err';
+      }, 9000);
+    })();
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Meža — Sparkling Botanical Soda</title>
+  <meta name="description" content="Meža is a sparkling botanical soda from the Baltic forest: four recipes, foraged within 60 km of a spring in Sigulda, Latvia.">
+  <meta name="theme-color" content="#0b0805">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23120a05'/%3E%3Cpath d='M12 6h8v4l2 4v12a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2V14l2-4z' fill='%23f07d0f'/%3E%3C/svg%3E">
+</head>
+<body>
+
+<div id="loader" aria-live="polite">
+  <div class="mono ld-top">Sparkling botanical soda · Sigulda, LV</div>
+  <div class="ld-mark" aria-hidden="true">MEŽA</div>
+  <div class="ld-row"><span class="mono" id="ldMsg">Walking into the forest</span><span class="ld-num" id="ldNum">000</span></div>
+  <div class="ld-bar"><i id="ldBar"></i></div>
+</div>
+
+<canvas id="forest" aria-hidden="true"></canvas>
+<div class="wordmark" aria-hidden="true"><div class="wm" id="wordmark"><span>M</span><span>E</span><span>Ž</span><span>A</span></div></div>
+<canvas id="gl" aria-label="A bottle of Meža soda, turning as you scroll"></canvas>
+<div class="scrim" aria-hidden="true"></div>
+<div class="grain" id="grain" aria-hidden="true"></div>
+
+<header class="nav" id="nav">
+  <a class="brand" href="#top" data-go="top" aria-label="Meža, back to the start">MEŽA</a>
+  <div class="now mono" id="now" aria-live="polite"><b id="nowNo">Nº 01</b><em id="nowName">Sea Buckthorn</em></div>
+  <div class="nav-right">
+  <nav class="nav-links" aria-label="Main">
+    <a href="#experience" data-go="v0">Products</a>
+    <a href="#story" data-go="story">Story</a>
+    <a href="#shop" data-go="shop">Shop</a>
+  </nav>
+  <div class="nav-actions">
+    <button class="cart-btn" type="button" data-open-cart aria-label="Open cart">Cart <span class="count" data-cart-count>0</span></button>
+    <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="menu">Menu</button>
+  </div>
+  </div>
+</header>
+<div class="rail" id="rail" aria-hidden="true"><i id="railFill"></i></div>
+
+<nav class="menu" id="menu" aria-label="Sections" hidden>
+  <button class="menu-btn menu-close" id="menuClose" type="button">Close</button>
+  <div class="mono menu-eyebrow">Four recipes, one forest</div>
+  <a href="#experience" data-go="v0"><small>01–04</small>Products</a>
+  <a href="#story" data-go="story"><small>Origin</small>Story</a>
+  <a href="#shop" data-go="shop"><small>Order</small>Shop</a>
+  <button type="button" class="menu-cart" data-open-cart><small class="mono">Cart</small><span data-cart-count>0</span> items</button>
+</nav>
+
+<!-- fixed copy that belongs to the 3D product journey -->
+<div class="overlay" id="overlay">
+  <section class="panel rest" id="p-hero"><div class="pi">
+    <span class="eyebrow mono">Nº 01–04 · Sparkling botanical soda</span>
+    <h1>Meža tastes like the forest it comes from.</h1>
+    <p>Four sodas made with berries, leaves and spring water from the Baltic forest. Lightly sweet, cold, very fine bubbles.</p>
+    <div class="cta-row">
+      <button type="button" class="btn" data-go="shop" data-magnetic>Shop Meža</button>
+      <button type="button" class="btn ghost" data-go="v0">Meet the four</button>
+    </div>
+  </div></section>
+  <div class="panel rest" id="p-meta"><div class="pi mono"><span>Golden hour · Gulf of Riga dunes</span><span>330 ml · 0% alc.</span></div></div>
+  <div class="panel rest" id="p-cue"><div class="pi mono"><span>Scroll into the forest</span><span class="stem"></span></div></div>
+
+  <section class="panel left" id="p-intro"><div class="pi">
+    <div class="eyebrow mono">From the forest edge</div>
+    <h2>Berries, leaves and bark, picked where the pines stop.</h2>
+    <p>Everything in the bottle is foraged within 60 km of the spring. Nothing is flavoured in a lab.</p>
+  </div></section>
+
+  <section class="panel left" id="p-v0"><div class="pi">
+    <div class="eyebrow mono">Nº 01 / 04 · Dune forest</div>
+    <h2>Sea Buckthorn &amp; Wildflower Honey</h2>
+    <p>Tart and bright, softened with a spoon of honey. The berries grow on the dunes along the Gulf of Riga and are pressed the week they are picked.</p>
+    <dl class="specs mono"><div><dt>Sugar / 100 ml</dt><dd>4.1<small>g</small></dd></div><div><dt>Juice</dt><dd>18<small>%</small></dd></div><div><dt>Energy</dt><dd>19<small>kcal</small></dd></div></dl>
+  </div></section>
+  <section class="panel right" id="p-v1"><div class="pi">
+    <div class="eyebrow mono">Nº 02 / 04 · Birch wood</div>
+    <h2>Blackcurrant Leaf &amp; Lime</h2>
+    <p>Green, peppery and cool. We steep the leaves instead of the fruit, so it tastes the way a currant bush smells after rain.</p>
+    <dl class="specs mono"><div><dt>Sugar / 100 ml</dt><dd>3.2<small>g</small></dd></div><div><dt>Leaf steep</dt><dd>9<small>h</small></dd></div><div><dt>Energy</dt><dd>14<small>kcal</small></dd></div></dl>
+  </div></section>
+  <section class="panel left" id="p-v2"><div class="pi">
+    <div class="eyebrow mono">Nº 03 / 04 · Raised bog</div>
+    <h2>Juniper &amp; Bog Myrtle</h2>
+    <p>Our tonic. Resinous juniper, a dry finish from bog myrtle and very fine bubbles. Good on its own, better over ice.</p>
+    <dl class="specs mono"><div><dt>Sugar / 100 ml</dt><dd>2.8<small>g</small></dd></div><div><dt>Bitterness</dt><dd>Mid</dd></div><div><dt>Energy</dt><dd>12<small>kcal</small></dd></div></dl>
+  </div></section>
+  <section class="panel right" id="p-v3"><div class="pi">
+    <div class="eyebrow mono">Nº 04 / 04 · Garden edge</div>
+    <h2>Rhubarb &amp; Wild Rose</h2>
+    <p>Sharp first, then soft. Garden rhubarb meets wild rose hips that steep overnight in the spring water.</p>
+    <dl class="specs mono"><div><dt>Sugar / 100 ml</dt><dd>4.6<small>g</small></dd></div><div><dt>Rhubarb</dt><dd>22<small>%</small></dd></div><div><dt>Energy</dt><dd>21<small>kcal</small></dd></div></dl>
+  </div></section>
+
+  <section class="panel" id="p-line"><div class="pi">
+    <div class="eyebrow mono center">The range · at the spring</div>
+    <h2>Four sodas. One forest.</h2>
+    <div class="cta-row center">
+      <button type="button" class="btn" data-go="shop" data-magnetic>Shop the range</button>
+      <button type="button" class="btn ghost" data-go="story">Taste the ingredients</button>
+    </div>
+  </div></section>
+
+  <div class="co" id="c0a" data-b="0"><div class="ci"><span class="lead"></span><span class="dot"></span><div class="txt"><span class="k mono">Low sugar</span><b>4.1 g</b><p>per 100 ml. All of it from wildflower honey, none from syrup.</p></div></div></div>
+  <div class="co" id="c0b" data-b="0"><div class="ci"><span class="lead"></span><span class="dot"></span><div class="txt"><span class="k mono">Cold-pressed</span><b>18% juice</b><p>Sea buckthorn from the Gulf of Riga dunes, pressed within a week of picking.</p></div></div></div>
+  <div class="co" id="c0c" data-b="0"><div class="ci"><span class="lead"></span><span class="dot"></span><div class="txt"><span class="k mono">Stamped crown</span><b>SIG-24/09</b><p>Every cap carries the batch and the day it was bottled.</p></div></div></div>
+  <div class="co" id="c1" data-b="1"><div class="ci"><span class="lead"></span><span class="dot"></span><div class="txt"><span class="k mono">Leaves, not berries</span><b>Picked in June</b><p>When the leaves hold the most scent. Steeped for nine hours.</p></div></div></div>
+  <div class="co" id="c2" data-b="2"><div class="ci"><span class="lead"></span><span class="dot"></span><div class="txt"><span class="k mono">No quinine</span><b>Bog myrtle</b><p>The bitter edge comes from a wetland shrub, foraged by hand.</p></div></div></div>
+  <div class="co" id="c3" data-b="3"><div class="ci"><span class="lead"></span><span class="dot"></span><div class="txt"><span class="k mono">Rose hips</span><b>12-hour steep</b><p>Dried wild rose hips rest overnight before the rhubarb goes in.</p></div></div></div>
+
+  <div class="tag" data-b="0"><div class="ti"><b>Sea Buckthorn</b><span class="mono">Nº 01</span></div></div>
+  <div class="tag" data-b="1"><div class="ti"><b>Currant Leaf</b><span class="mono">Nº 02</span></div></div>
+  <div class="tag" data-b="2"><div class="ti"><b>Juniper</b><span class="mono">Nº 03</span></div></div>
+  <div class="tag" data-b="3"><div class="ti"><b>Rhubarb</b><span class="mono">Nº 04</span></div></div>
+</div>
+
+<main id="top">
+  <section id="experience" class="experience" aria-label="The four recipes"></section>
+
+  <section id="story" class="ingredients" aria-labelledby="ingr-title">
+    <header class="ingr-head">
+      <span class="eyebrow mono">The ingredients</span>
+      <h2 id="ingr-title">Five things we pick by hand.</h2>
+      <p>No concentrates, no flavourings. What is on the label is what grew in the forest that summer.</p>
+    </header>
+    <ol class="ingr-list">
+      <li class="ingr" data-plate="buckthorn" data-ring="Hippophae rhamnoides · Late August · Berry" style="--c:#f2b36b">
+        <button type="button" class="ln" aria-expanded="false" aria-controls="ln-buckthorn">
+          <span class="ln-lens"><svg class="ln-ring" viewBox="0 0 100 100" aria-hidden="true"></svg><img alt="Sea buckthorn berries on the branch" decoding="async"><span class="ln-n mono">01</span></span>
+          <span class="ln-t"><span class="ln-name">Sea buckthorn</span><span class="ln-in mono">In Nº 01</span></span>
+        </button>
+        <div class="ln-more" id="ln-buckthorn">
+          <h3>Sea buckthorn</h3>
+          <span class="mono latin">Hippophae rhamnoides · Late August</span>
+          <p>Grows where the pines meet the dunes. Picked in late August, sour enough to make you blink.</p>
+          <div class="ln-go"><button type="button" class="pill mono" data-go="v0">See Nº 01 →</button></div>
+        </div>
+      </li>
+      <li class="ingr" data-plate="honey" data-ring="Gauja meadows · Mid July · Comb honey" style="--c:#f2b36b">
+        <button type="button" class="ln" aria-expanded="false" aria-controls="ln-honey">
+          <span class="ln-lens"><svg class="ln-ring" viewBox="0 0 100 100" aria-hidden="true"></svg><img alt="Wild honeycomb dripping honey" decoding="async"><span class="ln-n mono">02</span></span>
+          <span class="ln-t"><span class="ln-name">Wildflower honey</span><span class="ln-in mono">In Nº 01 · Nº 04</span></span>
+        </button>
+        <div class="ln-more" id="ln-honey">
+          <h3>Wildflower honey</h3>
+          <span class="mono latin">Gauja meadows · Mid July</span>
+          <p>Clover, yarrow, linden. Just enough to round off the sourness, never enough to make it sweet.</p>
+          <div class="ln-go"><button type="button" class="pill mono" data-go="v0">See Nº 01 →</button><button type="button" class="pill mono" data-go="v3">See Nº 04 →</button></div>
+        </div>
+      </li>
+      <li class="ingr" data-plate="currant" data-ring="Ribes nigrum, folium · Early June · Leaf" style="--c:#a9d39b">
+        <button type="button" class="ln" aria-expanded="false" aria-controls="ln-currant">
+          <span class="ln-lens"><svg class="ln-ring" viewBox="0 0 100 100" aria-hidden="true"></svg><img alt="Blackcurrant leaves with raindrops and ripe berries" decoding="async"><span class="ln-n mono">03</span></span>
+          <span class="ln-t"><span class="ln-name">Blackcurrant leaf</span><span class="ln-in mono">In Nº 02</span></span>
+        </button>
+        <div class="ln-more" id="ln-currant">
+          <h3>Blackcurrant leaf</h3>
+          <span class="mono latin">Ribes nigrum, folium · Early June</span>
+          <p>The leaf, not the berry. Green and peppery in June, steeped cold for nine hours.</p>
+          <div class="ln-go"><button type="button" class="pill mono" data-go="v1">See Nº 02 →</button></div>
+        </div>
+      </li>
+      <li class="ingr" data-plate="juniper" data-ring="Juniperus communis · October · Berry" style="--c:#9fc8e6">
+        <button type="button" class="ln" aria-expanded="false" aria-controls="ln-juniper">
+          <span class="ln-lens"><svg class="ln-ring" viewBox="0 0 100 100" aria-hidden="true"></svg><img alt="Ripe juniper berries on a sprig" decoding="async"><span class="ln-n mono">04</span></span>
+          <span class="ln-t"><span class="ln-name">Juniper berry</span><span class="ln-in mono">In Nº 03</span></span>
+        </button>
+        <div class="ln-more" id="ln-juniper">
+          <h3>Juniper berry</h3>
+          <span class="mono latin">Juniperus communis · October</span>
+          <p>From the raised bog, where juniper grows low and slow. Resin, pine, a little citrus.</p>
+          <div class="ln-go"><button type="button" class="pill mono" data-go="v2">See Nº 03 →</button></div>
+        </div>
+      </li>
+      <li class="ingr" data-plate="rose" data-ring="Rosa rugosa · September · Hip" style="--c:#f0a4ad">
+        <button type="button" class="ln" aria-expanded="false" aria-controls="ln-rose">
+          <span class="ln-lens"><svg class="ln-ring" viewBox="0 0 100 100" aria-hidden="true"></svg><img alt="Ripe wild rose hips" decoding="async"><span class="ln-n mono">05</span></span>
+          <span class="ln-t"><span class="ln-name">Wild rose hip</span><span class="ln-in mono">In Nº 04</span></span>
+        </button>
+        <div class="ln-more" id="ln-rose">
+          <h3>Wild rose hip</h3>
+          <span class="mono latin">Rosa rugosa · September</span>
+          <p>Runs wild along the coast. Brings a soft, tea-like sweetness to sharp rhubarb.</p>
+          <div class="ln-go"><button type="button" class="pill mono" data-go="v3">See Nº 04 →</button></div>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section id="origin" class="origin" aria-labelledby="origin-title">
+    <div class="origin-sticky">
+      <div class="origin-copy">
+        <span class="eyebrow mono" data-step>Origin · Sigulda, Gauja valley</span>
+        <h2 id="origin-title" data-step>Everything starts at one spring.</h2>
+        <p data-step>The water rises through red Devonian sandstone above the Gauja river. We bottle it within a day and forage everything else close by.</p>
+        <dl class="facts" data-step>
+          <div><dt class="mono">Foraging radius</dt><dd>60<small>km</small></dd></div>
+          <div><dt class="mono">Spring to bottle</dt><dd>24<small>h</small></dd></div>
+          <div><dt class="mono">Added flavourings</dt><dd>0</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section id="shop" class="shop" aria-labelledby="shop-title">
+    <header class="shop-head">
+      <div>
+        <span class="eyebrow mono">Shop · delivered across Latvia</span>
+        <h2 id="shop-title">Order a case.</h2>
+      </div>
+      <p>Six bottles of one recipe, or a mixed case of all four. Free delivery from €40. Prices include 21% VAT.</p>
+    </header>
+    <div class="shop-grid" id="shopGrid"></div>
+  </section>
+
+  <footer class="foot" id="foot" aria-labelledby="foot-title">
+    <canvas class="foot-forest" id="footForest" aria-hidden="true"></canvas>
+    <div class="foot-glow" aria-hidden="true"></div>
+    <div class="foot-final">
+      <span class="eyebrow mono center foot-eyebrow" data-foot>Nº 01–04 · Sigulda, Gauja valley</span>
+      <h2 id="foot-title" class="foot-title"><span class="ln" data-foot>A taste of the</span> <span class="ln" data-foot>Baltic forest.</span></h2>
+      <button type="button" class="foot-cta" data-go="shop" data-foot data-magnetic>Shop Meža <span class="arr" aria-hidden="true">→</span></button>
+    </div>
+    <div class="foot-mark" id="footMark" aria-hidden="true">MEŽA</div>
+    <div class="foot-row">
+      <span class="mono">Sparkling botanical soda · Bottled in Sigulda, LV</span>
+      <nav class="foot-links" aria-label="Footer"><a href="#experience" data-go="v0">Products</a><a href="#story" data-go="story">Story</a><a href="#shop" data-go="shop">Shop</a></nav>
+      <span class="mono">© 2026 Meža · Concept by Marta Jakovleva · Demo shop</span>
+    </div>
+  </footer>
+</main>
+
+<aside id="cart" class="cart" hidden aria-label="Cart">
+  <div class="cart-scrim" id="cartScrim"></div>
+  <div class="cart-panel" role="dialog" aria-modal="true" aria-labelledby="cart-title">
+    <header class="cart-head"><h2 id="cart-title">Your cart <span class="mono">(<span data-cart-count>0</span>)</span></h2><button type="button" class="menu-btn" id="cartClose">Close</button></header>
+    <div class="cart-list" id="cartList"></div>
+    <footer class="cart-foot" id="cartFoot" hidden>
+      <div class="ship-meter"><span class="mono" id="cartShip"></span><div class="bar"><i id="cartBar"></i></div></div>
+      <div class="cart-sub"><span>Subtotal</span><strong id="cartSubtotal">€0.00</strong></div>
+      <p class="mono fine">Delivery is chosen at checkout. Prices include 21% VAT.</p>
+      <div class="cart-actions"><button type="button" class="btn ghost" id="cartContinue">Continue shopping</button><button type="button" class="btn" id="cartCheckout">Checkout</button></div>
+    </footer>
+  </div>
+</aside>
+
+<div id="checkout" class="checkout" hidden role="dialog" aria-modal="true" aria-label="Checkout">
+  <header class="co-head">
+    <span class="brand">MEŽA</span>
+    <div id="coSteps"></div>
+    <button type="button" class="menu-btn" id="coClose">Close</button>
+  </header>
+  <div class="co-grid">
+    <div class="co-body" id="coBody"></div>
+    <aside class="co-side" id="coSide"></aside>
+  </div>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<noscript><p class="noscript">Meža needs JavaScript for its 3D bottle and shop.</p></noscript>
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
