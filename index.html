@@ -13,7 +13,7 @@
         if (window.__mezaBooted) return;
         var m = document.getElementById('ldMsg'); if (!m || /ld-err/.test(m.className)) return;
         var why = errs.length ? ' Reason: ' + errs[0] + '.' : !('noModule' in HTMLScriptElement.prototype) ? ' This browser does not run modern scripts.' : '';
-        m.textContent = 'This preview could not start the 3D scene.' + why + ' Open Meza.html in Safari or Chrome.';
+        m.textContent = 'This preview could not start the 3D scene.' + why + ' Try opening this page in Safari or Chrome.';
         m.className = 'mono ld-err';
       }, 9000);
     })();
