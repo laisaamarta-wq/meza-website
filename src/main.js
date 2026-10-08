@@ -115,6 +115,27 @@ async function boot() {
     lenis ? (lenis.start(), lenis.scrollTo(y, { duration: Math.min(3.2, 1.2 + Math.abs(y - scrollY) / 4000), force: true })) : window.scrollTo({ top: y, behavior: RM ? 'auto' : 'smooth' });
   };
 
+  // ---------- the journey cue ----------
+  // When the visitor stops inside the bottle journey, the scroll invitation comes back after a moment and says where
+  // the next scroll leads. It goes away as soon as they scroll again.
+  const nx = $('#p-next'), nxBtn = nx.querySelector('.cue'), nxTo = $('#nxTo');
+  let nxTimer = 0;
+  const nextHint = () => {
+    const { st, tl } = exp, L = tl.labels, y = scrollY;
+    if (document.body.classList.contains('locked') || y < st.start + 60 || y > st.end - 40) return;
+    const t = (y - st.start) / (st.end - st.start) * tl.duration();
+    let go = 'v0', to = 'to the first bottle', side = 'l';
+    if (t >= L.range - 0.25) { go = 'story'; to = 'to the ingredients'; side = 'r'; }
+    else if (t >= L.v0 - 0.3) {
+      const i = [0, 1, 2, 3].filter(k => t >= L['v' + k] - 0.3).pop();
+      side = i % 2 ? 'r' : 'l';
+      [go, to] = i < 3 ? ['v' + (i + 1), 'to the next bottle'] : ['range', 'to the whole range'];
+    }
+    nxBtn.dataset.go = go; nxTo.textContent = to; nxBtn.setAttribute('aria-label', 'Scroll ' + to);
+    nx.classList.remove('l', 'r', 'c'); nx.classList.add(side, 'on');
+  };
+  addEventListener('scroll', () => { nx.classList.remove('on'); clearTimeout(nxTimer); nxTimer = setTimeout(nextHint, 1300); }, { passive: true });
+
   // ---------- menu ----------
   const menu = $('#menu'), menuBtn = $('#menuBtn');
   const setMenu = open => {

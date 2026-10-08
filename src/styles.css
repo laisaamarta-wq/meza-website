@@ -128,7 +128,7 @@ h2 { font-size: clamp(2.3rem, 4.3vw, 4.6rem) }
 .cue-seed { position: absolute; left: 14px; top: 22px; width: 8px; height: 8px; margin-left: -4px; border-radius: 50%; background: rgb(var(--accent)); box-shadow: 0 0 9px rgb(var(--accent) / .55);
   animation: seed 3.2s cubic-bezier(.5, 0, .4, 1) infinite }
 @keyframes seed { 0% { transform: translateY(0); opacity: 0 } 14% { opacity: 1 } 70% { opacity: 1 } 100% { transform: translateY(calc(var(--h) - 14px)); opacity: 0 } }
-.cue-txt { margin-top: 1px; font-size: 11px; line-height: 1.75; letter-spacing: .2em; color: rgb(var(--fg) / .7); transition: color .3s, opacity .4s, transform .5s var(--ease) }
+.cue-txt { margin-top: 1px; font-size: 11px; line-height: 1.75; letter-spacing: .2em; color: rgb(var(--fg) / .7); text-shadow: 0 1px 10px rgb(var(--ink) / .7); transition: color .3s, opacity .4s, transform .5s var(--ease) }
 .cue-txt b { display: block; font-weight: 500; color: rgb(var(--fg)) }
 .cue:hover .cue-txt, .cue:focus-visible .cue-txt { color: rgb(var(--fg)) }
 /* the invitation is accepted: the seed drops into the scene, the words step aside */
@@ -136,6 +136,16 @@ h2 { font-size: clamp(2.3rem, 4.3vw, 4.6rem) }
 #p-cue.entered .cue-txt { opacity: 0; transform: translateY(8px) }
 #p-cue.entered .cue-leaves { opacity: 0 }
 @media (max-width: 1180px) and (min-width: 761px) { #p-meta { display: none } }
+/* in the journey: the cue waits on the side of the text, never over the bottle */
+#p-next { left: var(--gutter); bottom: 0; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .5s, visibility 0s .5s }
+#p-next.on { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity .9s var(--ease) }
+#p-next.r { left: auto; right: var(--gutter) }
+#p-next.r .cue { flex-direction: row-reverse; text-align: right }
+#p-next.c { left: 50%; transform: translateX(-50%) }
+.cue-next { --h: clamp(92px, 12vh, 132px) }
+.cue-next .cue-stem::before { top: 4px }
+.cue-next .cue-seed { top: 2px }
+#p-next:not(.on) .cue-txt { transform: translateY(8px) }
 @keyframes drip { to { top: 110% } }
 #p-line { left: 50%; top: calc(86px + env(safe-area-inset-top, 0px)); transform: translateX(-50%); text-align: center; width: min(44rem, calc(100% - 32px)) }
 #p-line .pi { pointer-events: auto }
@@ -424,6 +434,12 @@ body.locked .toast { visibility: hidden }
   .cue-stem { width: 14px; height: calc(var(--h) + 6px) }
   .cue-stem::before { left: 6.5px; top: 0 }
   .cue-seed { left: 7px; top: -1px; width: 7px; height: 7px; margin-left: -3.5px }
+  /* phone: the text sits low, so the journey cue lives on the right edge at thumb height — a vertical word and a stem */
+  #p-next, #p-next.r, #p-next.c { left: auto; right: 4px; bottom: auto; top: 34%; transform: none }
+  #p-next .cue, #p-next.r .cue { flex-direction: column; align-items: center; gap: 10px; --h: 52px; padding: 8px }
+  #p-next .cue-txt { order: -1; writing-mode: vertical-rl; letter-spacing: .28em; font-size: 10px; text-align: left }
+  #p-next .nx-to { display: none }
+  #p-next:not(.on) .cue-txt { transform: none }
   #p-line { top: calc(74px + env(safe-area-inset-top, 0px)) }
   .co .lead { transform: rotate(90deg); width: 64px }
   .co .txt { left: 50%; top: 70px; width: min(17rem, calc(100vw - 32px)); transform: translateX(-50%) }
@@ -467,6 +483,7 @@ body.locked .toast { visibility: hidden }
 
 @media (prefers-reduced-motion: reduce) {
   .cue-seed { animation: none; transform: translateY(calc(var(--h) * .45)) }
+  #p-next, #p-next.on { transition: none }
   .menu, .cart-panel, .checkout, .toast, .ln-lens img, .foot-forest { transition: none }
   .ln-spin { animation: none }
   .foot-glow { animation: none }
