@@ -118,10 +118,24 @@ h2 { font-size: clamp(2.3rem, 4.3vw, 4.6rem) }
 #p-hero p { max-width: 34ch; font-size: 15px }
 #p-meta { right: var(--gutter); bottom: calc(40px + env(safe-area-inset-bottom, 0px)); text-align: right; color: rgb(var(--fg) / .7) }
 #p-meta .pi { display: grid; gap: 6px }
-#p-cue { left: 50%; bottom: calc(22px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%) }
-#p-cue .pi { display: grid; justify-items: center; gap: 10px; color: rgb(var(--fg) / .8) }
-#p-cue .stem { width: 1px; height: 34px; background: rgb(var(--fg) / .25); position: relative; overflow: hidden }
-#p-cue .stem::after { content: ""; position: absolute; left: 0; top: -40%; width: 1px; height: 40%; background: rgb(var(--fg)); animation: drip 2.2s cubic-bezier(.6, 0, .3, 1) infinite }
+/* scroll invitation: right of the bottle's foot (its size follows the viewport height), running off the bottom edge */
+#p-cue { left: calc(50% + 17vh); bottom: 0 }
+#p-cue .pi { pointer-events: auto }
+.cue { --h: clamp(118px, 16vh, 168px); display: flex; align-items: flex-start; gap: 14px; padding: 0; border: 0; background: none; color: inherit; cursor: pointer; text-align: left; -webkit-tap-highlight-color: transparent }
+.cue-stem { position: relative; flex: none; width: 28px; height: var(--h) }
+.cue-stem::before { content: ""; position: absolute; left: 13.5px; top: 24px; bottom: 0; width: 1px; background: linear-gradient(rgb(var(--fg) / .7), rgb(var(--fg) / .14)) }
+.cue-leaves { position: absolute; left: 0; top: 0; width: 28px; height: 26px; fill: none; stroke: rgb(var(--fg) / .85); stroke-width: 1.1; stroke-linecap: round; transition: opacity .5s }
+.cue-seed { position: absolute; left: 14px; top: 22px; width: 8px; height: 8px; margin-left: -4px; border-radius: 50%; background: rgb(var(--accent)); box-shadow: 0 0 9px rgb(var(--accent) / .55);
+  animation: seed 3.2s cubic-bezier(.5, 0, .4, 1) infinite }
+@keyframes seed { 0% { transform: translateY(0); opacity: 0 } 14% { opacity: 1 } 70% { opacity: 1 } 100% { transform: translateY(calc(var(--h) - 14px)); opacity: 0 } }
+.cue-txt { margin-top: 1px; font-size: 11px; line-height: 1.75; letter-spacing: .2em; color: rgb(var(--fg) / .7); transition: color .3s, opacity .4s, transform .5s var(--ease) }
+.cue-txt b { display: block; font-weight: 500; color: rgb(var(--fg)) }
+.cue:hover .cue-txt, .cue:focus-visible .cue-txt { color: rgb(var(--fg)) }
+/* the invitation is accepted: the seed drops into the scene, the words step aside */
+#p-cue.entered .cue-seed { animation: none; transform: translateY(calc(var(--h) + 12px)); opacity: 0; transition: transform .8s cubic-bezier(.6, 0, .9, .5), opacity .8s }
+#p-cue.entered .cue-txt { opacity: 0; transform: translateY(8px) }
+#p-cue.entered .cue-leaves { opacity: 0 }
+@media (max-width: 1180px) and (min-width: 761px) { #p-meta { display: none } }
 @keyframes drip { to { top: 110% } }
 #p-line { left: 50%; top: calc(86px + env(safe-area-inset-top, 0px)); transform: translateX(-50%); text-align: center; width: min(44rem, calc(100% - 32px)) }
 #p-line .pi { pointer-events: auto }
@@ -401,8 +415,15 @@ body.locked .toast { visibility: hidden }
   .cta-row { margin-top: 18px }
   .cta-row .btn { flex: 1 1 auto; padding: 14px 16px }
   #p-meta { display: none }
-  #p-cue { bottom: calc(14px + env(safe-area-inset-bottom, 0px)) }
-  #p-cue .stem { display: none }
+  /* phone: centred under the buttons — words first, then a short stem down to the edge of the screen */
+  #p-cue { left: 50%; transform: translateX(-50%); bottom: env(safe-area-inset-bottom, 0px) }
+  .cue { --h: 26px; flex-direction: column; align-items: center; gap: 6px }
+  .cue-txt { order: -1; white-space: nowrap; font-size: 10.5px; line-height: 1.5; color: rgb(var(--fg) / .8) }
+  .cue-txt b { display: inline }
+  .cue-leaves { display: none }
+  .cue-stem { width: 14px; height: calc(var(--h) + 6px) }
+  .cue-stem::before { left: 6.5px; top: 0 }
+  .cue-seed { left: 7px; top: -1px; width: 7px; height: 7px; margin-left: -3.5px }
   #p-line { top: calc(74px + env(safe-area-inset-top, 0px)) }
   .co .lead { transform: rotate(90deg); width: 64px }
   .co .txt { left: 50%; top: 70px; width: min(17rem, calc(100vw - 32px)); transform: translateX(-50%) }
@@ -445,7 +466,7 @@ body.locked .toast { visibility: hidden }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  #p-cue .stem::after { animation: none; top: 30% }
+  .cue-seed { animation: none; transform: translateY(calc(var(--h) * .45)) }
   .menu, .cart-panel, .checkout, .toast, .ln-lens img, .foot-forest { transition: none }
   .ln-spin { animation: none }
   .foot-glow { animation: none }

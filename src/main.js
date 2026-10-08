@@ -93,6 +93,10 @@ async function boot() {
     gsap.ticker.lagSmoothing(0);
     lenis.stop();
   }
+  // the scroll invitation reacts to the first scroll and comes back at the very top
+  const cue = $('#p-cue');
+  const onTop = () => cue.classList.toggle('entered', scrollY > 4);
+  addEventListener('scroll', onTop, { passive: true }); onTop();
   const lock = on => { document.body.classList.toggle('locked', on); if (lenis) on ? lenis.stop() : lenis.start(); };
 
   // ---------- timelines ----------

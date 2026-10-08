@@ -91,7 +91,16 @@
     </div>
   </div></section>
   <div class="panel rest" id="p-meta"><div class="pi mono"><span>Golden hour · Gulf of Riga dunes</span><span>330 ml · 0% alc.</span></div></div>
-  <div class="panel rest" id="p-cue"><div class="pi mono"><span>Scroll into the forest</span><span class="stem"></span></div></div>
+  <div class="panel rest" id="p-cue"><div class="pi">
+    <!-- the entrance: a stem runs off the bottom of the screen, a seed slips down it into the forest -->
+    <button type="button" class="cue" data-go="v0" aria-label="Scroll to enter the forest">
+      <span class="cue-stem" aria-hidden="true">
+        <svg class="cue-leaves" viewBox="0 0 24 22"><path d="M12 22V3M12 11C8.4 10.4 5.6 7.8 4.6 4.2 8.3 4.6 11.2 7.3 12 11M12 15.5c3.6-.6 6.4-3.2 7.4-6.8-3.7.4-6.6 3.1-7.4 6.8"/></svg>
+        <i class="cue-seed"></i>
+      </span>
+      <span class="cue-txt mono"><b>Scroll</b> to enter the forest</span>
+    </button>
+  </div></div>
 
   <section class="panel left" id="p-intro"><div class="pi">
     <div class="eyebrow mono">From the forest edge</div>
